@@ -1,9 +1,14 @@
 //Varibels
 const navBtn = $(".panel-button");
+var div_home = $("#cont1");
+var div_card = $("#card-wrapper");
 var allCoins = [];
-var selected_coins = [];
+
 var lsArray = false;
-var delete_arr = null;
+var delete_coins = null;
+var selected_coins = null;
+
+localStorage.clear();
 
 //Get Data
 function getData() {
@@ -38,7 +43,7 @@ function printCards(cardData) {
 
 //Create Cards
 function createCard(coin) {
-  var div_card = $("#card-wrapper");
+  
   var card = $(`<div class='col-md-4 card' id=c${coin.id}></div>`);
   var body = $(`<div class="card-body"></div>`);
   var first_row = $(`<div class="row"></div>`);
@@ -93,31 +98,54 @@ function createCard(coin) {
   });
 }
 
+//Get Info on Coin
+function getSearchCoin() {
+  var searchcoin = {};
+  let search = $("#search").val();
+  if (search.length < 3) {
+    alert("Search Phrase too Short...");
+    return;
+  }
+  var searchId;
+ allCoins.forEach(coin=>{
+     if(coin.symbol===search){
+      searchId= coin.id;
+      
+     }     
+  });
+  $.ajax({
+    type: "GET",
+    url: `https://api.coingecko.com/api/v3/coins/${searchId}`,
+    success: function(searchcoin) {
+      $("#card-wrapper").html("");
+      console.log(searchcoin);
+      createCard(searchcoin);
+    }
+  });
+}
 //Save coins array to local storage
-function saveCoinsToLS(array) {
-  let coinsLSArr = {
-    name: "localSAllCoins",
-    data: array
-  };
+function saveCoinsToLS(arr) {
+  let coinsLSArr = arr;
+  
   let coinsLSArr_str = JSON.stringify(coinsLSArr);
 
   localStorage.setItem("coinsLSArr", coinsLSArr_str);
 }
 //Get coins array From local storage
 function getCoinsFromLS() {
-  alert("From Local Storege");
-  let arr = localStorage.getItem("coinsLSArr");
-  let objArray = JSON.parse(arr);
+  //alert("From Local Storege");
+  let arrls = localStorage.getItem("coinsLSArr");
+  console.log(arrls);
+  let objArray = JSON.parse(arrls);
   console.log(objArray);
   return objArray;
 }
 
 //Home Page
 function homePage() {
-  var selected_coins = null;
-
+  
+  $("#1").addClass("active");
   let sitetitel = "Cryptonite";
-  var div_home = $("#cont1");
   var back_img = $(`
                       <div class="parallax" id="back_img">
                           <div class="img_titel">
@@ -128,7 +156,7 @@ function homePage() {
   div_home.append(back_img);
 
   if (lsArray) {
-    alert("Take from LS!");
+    //alert("Take from LS!");
     allCoins = getCoinsFromLS();
     printCards(allCoins);
   } else {
@@ -142,11 +170,16 @@ function navfunc(panel) {
   $("[id*='panel']").removeClass("active");
   $("#" + panel).show();
   $("#" + panel).addClass("active");
-
+if(panel!="panel1"){
+  $(div_home).empty();
+  $(div_card).empty();
+  $("#1").removeClass("active");
+}
   switch (panel) {
     case "panel3":
       // code block
       alert("About!");
+     
       break;
     case "panel2":
       // code block
@@ -156,13 +189,14 @@ function navfunc(panel) {
     default:
       // code block
       alert("Home!");
-    //homePage(allcoins);
+    homePage();
   }
 }
 
 //Main
-window.onload = function() {
-  localStorage.clear();
+$(document).ready(function () {
+	
+  //localStorage.clear();
   $(document).ajaxStart(function() {
     $(".cover").show();
   });
@@ -176,4 +210,4 @@ window.onload = function() {
     console.log("panelId: " + panelId);
     navfunc(panelId);
   });
-};
+});
