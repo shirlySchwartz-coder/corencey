@@ -4,6 +4,9 @@
     margin: 0;
     cursor:pointer;
 }
+.container{
+  cursor: pointer;
+}
 .cover{
     position: fixed;
     background: rgba(0,0,0,0.5);
@@ -158,13 +161,17 @@ padding:1px 20px;
 
 /**/
 .modal{
-  /*width: 600px;*/
+  position: fixed;
   top: 10px;
-  left: 50%;
-  right: -50%;
-  display: flex;
-  align-items: center;
   
+  width: 400px;
+  height: 600;
+  margin-top:250px ;
+  margin-left: 300px;
+  
+}
+.button-holder{
+  display: block;
 }
 
 .mrow{

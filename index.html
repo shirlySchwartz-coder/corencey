@@ -17,6 +17,32 @@
 </head>
 
 <body>
+    <!--Modal-->
+    <div class="modal" tabindex="-1" role="dialog" id="myModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Selected Coins - Please select which coin to remove ! 
+                    </h5>
+                    <button type="button" id="md-close" class="close" data-dismiss="modal" aria-label="close" onClick="closeModel()" >
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="coin0"></p>
+                    <p id="coin1"></p>
+                    <p id="coin2"></p>
+                    <p id="coin3"></p>
+                    <p id="coin4"></p>
+                </div>
+                <div class="modal-footer" id="modal-wrepper">
+        
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Modal-->
     <div>
         <!--Cover Area-->
         <div class="cover">
@@ -101,28 +127,29 @@
         <!--Header Area-->
         <div class="header row" id="header">
             <!--NavBar Area-->
-           
+
             <!-- Navigation Buttuns-->
             <div id="wrepper_navigation">
                 <!-- problem geting the btn id -->
-                <ul class="nav nav-pills nav-fill" >
+                <ul class="nav nav-pills nav-fill">
                     <li class="nav-item btn-group-toggle">
-                        <a class="nav-link panel-button btn btn-outline-primary " href="#home"
-                            data-panelid="panel1" id="1">Home</a>
+                        <a class="nav-link panel-button btn btn-outline-primary " href="#home" data-panelid="panel1"
+                            id="1">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link panel-button btn btn-outline-primary" href="#live" data-panelid="panel2" id="2">Live
+                        <a class="nav-link panel-button btn btn-outline-primary" href="#live" data-panelid="panel2"
+                            id="2">Live
                             Update</a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link panel-button btn btn-outline-primary" href="#about" data-panelid="panel3" id="3">About</a>
+                        <a class="nav-link panel-button btn btn-outline-primary" href="#about" data-panelid="panel3"
+                            id="3">About</a>
                     </li>
                     <form class="form-inline my-0 my-lg-0">
                         <input class="form-control mr-sm-2" type="text" id="search" value=""
                             placeholder="Enter Coin Id">
-                        <div class="btn btn-outline-primary my-2 my-sm-0" 
-                            onclick="getSearchCoin()"><i class="fa fa-search "
-                                aria-hidden="true"></i>Search</button>
+                        <div class="btn btn-outline-primary my-2 my-sm-0" onclick="getSearchCoin()"><i
+                                class="fa fa-search " aria-hidden="true"></i>Search</button>
                     </form>
                 </ul>
             </div>
@@ -134,7 +161,7 @@
 
                 <div class="home-page page active" id="panel1">
                     <div>
-                        <div id="w_modal"></div>
+                        
                         <div class="cont" id="cont1">
 
                         </div>
@@ -165,7 +192,7 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
 
         </div>
