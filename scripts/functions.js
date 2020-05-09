@@ -3,44 +3,52 @@ const navBtn = $(".panel-button");
 var div_home = $("#cont1");
 var div_card = $("#card-wrapper");
 var checkBoxArray = [];
+var symbolArray = [];
 
 var lsArray = false;
 var delete_coins = [];
+var allCoins = [];
 
-const counter = 0;
 class Coin {
-  constructor(id, symbol, name, counter) {
+  constructor(id, symbol, name, index) {
     this.id = id;
     this.symbol = symbol;
     this.name = name;
-    this.index = counter;
+    this.index = index;
   }
   getCoinId() {
     return this.id;
   }
-  addCounter() {
-    return counter + 1;
-  }
 }
+
 const coinsArr = [];
-var allCoins = [];
-class ReportCoin {
-  constructor(symbol, id, switchElement, index) {
-    this.symbol = symbol;
-    this.id = id;
-    this.cardSwitchElement = switchElement;
-    this.index = index;
-  }
-  toggleSwitch(x) {
-    if ($(this.switchElement).prop("checked", true)) {
-      $(x).prop("checked", false);
-    } else if ($(this.switchElement).prop("checked", false)) {
-      $(x).prop("checked", true);
-    }
-  }
-}
-const selected_coins = [];
-//console.log(selected_coins);
+
+
+
+//Main
+//$(document).ready(function() {
+  (function () {
+    $(".modal").hide();
+    localStorage.clear();
+    console.log("Local Storege Has Been Cleared...");
+    $(document).ajaxStart(function () {
+      $(".cover").show();
+      console.log("cover active");
+    });
+    $(document).ajaxComplete(function () {
+      $(".cover").hide();
+      console.log("cover not active");
+    });
+    $("[id*='panel']").addClass("active");
+    homePage();
+    navBtn.on("click", function () {
+      console.log(navBtn);
+      navBtn.toggleClass("active");
+      var panelId = $(this).data("panelid");
+      console.log("panelId: " + panelId);
+      navfunc(panelId);
+    });
+  })();
 
 //Print Cards
 function printCards(cardData) {
@@ -49,7 +57,6 @@ function printCards(cardData) {
     coinsArr.push(
       new Coin(cardData[i].id, cardData[i].symbol, cardData[i].name, i)
     );
-    //console.log(coinsArr);
     createCard(coinsArr[i], i);
   }
 }
@@ -63,8 +70,8 @@ function createCard(coin, index) {
   var first_row = $(`<div class ="row"></div>`);
   var symbol = $(`<div class ="card-title col" ><h4>${coin.symbol}<h4></div>`);
   let label_switch = $(`<label class="switch mt-1" id=${coin.symbol}>
-                          <input class="si" type="checkbox" name="sliderCheck" id=${coin.id} switch-index=${index}  >
-                          <span class ="slider round"></span>
+                          <input class="si" type="checkbox" name="sliderCheck" id=${coin.id} switch-index=${index}  >[0]
+                          <span class ="slider round"></span>[0]
                         </label>`);
   var name = $(`<div class ="card-text">Name : ${coin.name}</div>`);
   var infobtn = $(
@@ -85,7 +92,6 @@ function createCard(coin, index) {
   });
 
   infobtn.on("click", function () {
-    var time = new Date();
     this.classList.toggle("active");
     var content = this.nextElementSibling;
     if (content.style.display === "block") {
@@ -94,46 +100,40 @@ function createCard(coin, index) {
     } else {
       content.style.display = "block";
       console.log("show");
-      console.log(time);
-      getInfoOnCoin(infoWrapper, coin.id, time);
+
+      getInfoOnCoin(infoWrapper, coin.id);
     }
   });
 }
-//Toggle Coin
-function toggleCoin(currentCoin, event) {
+//Toogle Select Coins
+
+function toggleCoin( currentCoin,event) {
+  
   let input_checked = event.target;
-  let thisCoin = currentCoin;
-  let active=$(event.target.parentElement).hasClass("active");
-  console.log("input_checked", input_checked);
-  console.log("thisCoin", thisCoin);
-  if ($(input_checked).is(":checked")) {
-    $(input_checked).addClass("active");
-    if (selected_coins.length > 4) {
-      alert("You Can Choose Only 5 Coins !!!");
-      createModal(selected_coins, input_checked);
-    } else {
-      let c = new ReportCoin(
-        thisCoin.symbol,
-        thisCoin.id,
-        input_checked,
-        thisCoin.index
-      );
-      console.log(c);
-      selected_coins.push(c);
-      console.log(selected_coins);
-    }
+  let input=input_checked.closest('label');
+  console.log('input', input);
+  
+  if (symbolArray.includes(currentCoin.symbol)) {
+    console.log("in the array");
+    checkBoxArray.splice(checkBoxArray.indexOf(input), 1);
+    symbolArray.splice(symbolArray.indexOf(currentCoin.symbol), 1); 
   } else {
-    //if ($(input_checked).is(":checked", false)) {
-      if (!active){
-      let tempCoinId=input_checked.id;
-      console.log('tempCoinId', tempCoinId);
-      $(input_checked).removeClass("active");
-      selected_coins.splice(0, 1);
-      console.log(selected_coins);
-      // counter--;
+    console.log("not in the array");
+    if (checkBoxArray.length > 4) {
+      alert("more the five");
+      
+      createModal(checkBoxArray, input_checked);
+    } else {
+      let checked=input.cloneNode(true);
+      checkBoxArray.push(checked);
+      console.log('checkBoxArray',checkBoxArray);
+      symbolArray.push(currentCoin.symbol);
+      console.log('symbolArray',symbolArray);
     }
   }
+  
 }
+
 //Get serched  Coin
 function getSearchCoin() {
   var searchcoin = {};
@@ -160,10 +160,25 @@ function getSearchCoin() {
   });
 }
 //Get Coin Info
-function getInfoOnCoin(wrepper, coinId, time) {
+function getInfoOnCoin(wrepper, coinId) {
   let now = new Date();
-  localStoageCheck(now, coinId);
-  console.log(time, now);
+
+  if (localStorage.getItem(coinId) === null) {
+    makeAPIInfoOnCoinReq(wrepper, coinId, now);
+  } else {
+    let localStorageObj = JSON.parse(localStorage.getItem(coinId));
+    if (Date.now() - localStorageObj.time > 120000) {
+      //2 minuts pass
+      console.log("2 minuts passed !!!");
+      makeAPIInfoOnCoinReq(wrepper, coinId, now);
+    } else {
+      //2 minuts not passed
+      console.log("2 minuts not passed");
+      printInfoOnCoin(wrepper, localStorageObj.res);
+    }
+  }
+}
+function makeAPIInfoOnCoinReq(wrepper, coinId, now) {
   $.ajax({
     type: "GET",
     url: `https://api.coingecko.com/api/v3/coins/${coinId}`,
@@ -171,10 +186,10 @@ function getInfoOnCoin(wrepper, coinId, time) {
       console.log(infoCoin);
       let localStorageObj = {
         res: infoCoin,
-        time: time.toString(),
+        time: now.toString(),
       };
-      addLocalStorage(coinId, JSON.stringify(localStorageObj));
-      printInfoOnCoin(wrepper, infoCoin, time);
+      printInfoOnCoin(wrepper, infoCoin);
+      localStorage.setItem(coinId, JSON.stringify(localStorageObj));
     },
     error: function () {
       alert("error!");
@@ -182,7 +197,7 @@ function getInfoOnCoin(wrepper, coinId, time) {
   });
 }
 //Print Info on Coin
-function printInfoOnCoin(wrepper, coinInfo, time) {
+function printInfoOnCoin(wrepper, coinInfo) {
   wrepper.html("");
   var coin_img = $(
     `<img src="${coinInfo.image.large}" id="coin_img" srcset="">`
@@ -202,23 +217,14 @@ function printInfoOnCoin(wrepper, coinInfo, time) {
     .append(coin_vs_USD)
     .append(coin_vs_EUR)
     .append(coin_vs_ILS);
-  console.log(time.toUTCString());
 }
-//Save to Local Storage
-function localStoageCheck(now, coinId) {
-  let tempLocal;
-  if (localStorage.length === 0) {
-    console.log("Local Storage Is Empty !");
-  } else {
-    console.log("Local Storage Is Not Empty !");
-  }
-}
+
 function addLocalStorage(name, data) {
   console.log(data + "saving to local storage");
   localStorage.setItem(name, data);
 }
 
-//Save coins array to local storage
+//Save Json coins array to local storage
 function saveCoinsToLS(arr) {
   console.log("Saving To Local Storage The Coins Array");
   let coinsLSArr = arr;
@@ -240,157 +246,64 @@ function getCoinsFromLS() {
 function createModal(arr, checkbox) {
   $(".modal-body").empty();
   $(checkbox).prop("checked", !$(checkbox).prop("checked"));
+ 
 
-  console.log("show model");
-  $("#myModal").show();
-  arr.forEach((element) => {
+  checkBoxArray.forEach((element) => {
+    console.log(element);
     let div = $(`<div class="button-holder"></div>`)[0];
-    let input = $(`<label class="switch mt-1" id=${element.symbol}>
-    <input  type="checkbox" name="sliderCheck" id=m${element.id}   >
-    <span class ="slider round"></span></label>`);
-    div.append(input[0]);
-    div.append(element.symbol);
+    div.append(element);
+    div.append(element.id);
 
     $(".modal-body")[0].append(div);
   });
-  let modal_footer = $(`<div class ="modal-footer">
-                              <button type="button" class ="btn btn-secondary close" data-dismiss="modal" id="closemodal" onClick="closeModel()">
-                                Cancel
-                              </button>
-                              <button type="button" class ="btn btn-primary" id="save_btn" onclick="saveNewArr(delete_coins)">
-                                Save changes
-                              </button>
-                            </div>`);
-  $("#modal-wrepper").append(modal_footer);
-
-  $(".modal-body").on("change", function (e) {
-    let coin_checked = e.target;
-    console.log(coin_checked);
-    if ($(coin_checked).is(":checked")) {
-      let x = coin_checked.id;
-      let temp = x.slice(1);
-      console.log(temp);
-      delete_coins.push(temp);
-      console.log(delete_coins);
-    }
-  });
-  addLocalStorage("SelectedCoins", selected_coins);
-}
-
-//cancel was clicked on modal
-function cancelModal() {
-  //let origArray = $('.modal-body').find('.switch');
-  //checkBoxArray = [...origArray];
-  $(".modal-body").empty();
+ 
+  $("#myModal").show();
+ 
 }
 
 //Modal
-
-/*function createModal(arr, checkbox) {
-  let temp = "";
-  let temp2 = null;
-  delete_coins = [];
-
-  $(checkbox).prop("checked", !$(checkbox).prop("checked"));
-  let div_modal = $(
-    `<div class="modal" tabindex="-1" role="dialog" id="modal"></div>`
-  );
-  let modal_dialog = $(
-    `<div class="modal-dialog modal-md col-5" role="document"></div>`
-  );
-  let modal_content = $(`<div class="modal-content"><div>`);
-  let modal_header = $(` <div class="modal-header">
-                                <h5 class="modal-title">Selected Coins - Please select which coin to remove ! </h5>
-                              </div>`);
-  let modal_close = $(`<button type="button" id="md-close" class="close" data-dismiss="modal" aria-label="close" onClick="closeModel()" >
-                              <span aria-hidden="true">&times;</span>
-                          </button>`);
-
-  arr.forEach(coin) {
-    temp += `<div class="row mrow">
-    <p class ="switchlabel">${coin.symbol}</p>
-              <label class ="switch">
-                <input type="checkbox" name="sliderCheck" id="m${coin.id}" mindex=${coin.index} >
-                <span class ="slider round"></span>
-              </label>
-            <div>
-            `;
-  }
-  let modal_body = $(`<div class ="modal-body"><p>${temp} </p></div>`);
-  let modal_footer = $(`<div class ="modal-footer">
-                              <button type="button" class ="btn btn-secondary close" data-dismiss="modal" id="closemodal" onClick="closeModel()">
-                                Cancel
-                              </button>
-                              <button type="button" class ="btn btn-primary" id="save_btn" onclick="saveNewArr(selected_coins,delete_coins)">
-                                Save changes
-                              </button>
-                            </div>`);
-
-  $(modal_header).append(modal_close);
-  $(modal_content).append(modal_header).append(modal_body).append(modal_footer);
-  $(div_modal).append(modal_dialog).append(modal_content);
-
-  $("#w_modal").append(div_modal);
-  $(".modal").show();
-  $("#w_modal").show();
-
-  //
-
-  $(".modal-body").on("change", function (e) {
-    let coin_checked = e.target;
-    console.log(coin_checked);
-    if ($(coin_checked).is(":checked")) {
-      let x = coin_checked.id;
-      let temp = x.slice(1);
-      console.log(temp);
-      delete_coins.push(temp);
-      console.log(delete_coins);
-    }
-  });
-  addLocalStorage("SelectedCoins", selected_coins);
-  $("#closemodal").on("click", closeModel);
-}*/
-function closeModel() {
-  $(".modal").empty();
-  $("#w_modal").hide();
+//cancel was clicked on modal
+function cancelModal() {
+  $(".modal-body").empty();
 }
-function saveNewArr(arr1) {
-  let origanArr = selected_coins;
-  let deleteArr = [];
-  //let modalSwitchs = $(".modal_body").find(".switch");
-  //console.log(modalSwitchs);
+function closeModel() {
+  $(".modal").hide();
+}
 
-  if (arr1.length > 0) {
-    alert("saving");
-    console.log("arr1: " + arr1);
-    deleteArr = arr1;
-    for (i = 0; i < deleteArr.length; i++) {
-      for (j = 0; j < origanArr.length; j++) {
-        if (origanArr[j].id === deleteArr[i]) {
-          origanArr = selected_coins.splice(j, 1);
-          console.log("origanArr", origanArr);
-          //selected_coins = [...arr1.splice(j, 1)];
-          console.log("you delete: " + deleteArr[j] + "!");
-          console.log("selected_coins: " + selected_coins);
-          let temp = deleteArr[i];
-          $('#temp').prop("checked", !$('#temp').prop("checked"));
+function saveNewArr() {
+  let localCheckBoxArray = [];
+  let localSymbolArray = [];
+  let origArray = [];
 
-          /*if ($("#m" + temp).is(":checked", true)) {
-            //selected_coins.toggleSwitch(temp);
-            $("#" + temp).removeClass("active");
-            $("#" + temp).is(":checked", false);*/
-          }
-           //console.log(selected_coins);
-        }
-      }
+  origArray = $('.modal-body').find('.switch');
+
+  for (let i = 0; i < origArray.length; i++) {
+    let checkbox = $(origArray[i]).find('input')[0];
+    let bool = $(checkbox).is(':checked');
+    if (bool) {
+      localCheckBoxArray.push(origArray[i]);
+      console.log("localCheckBoxArray", localCheckBoxArray);
     }
-  
-  console.log("selected_coins: " + selected_coins);
-  if ($(input_checked).is(":checked", false)) {
-    $(input_checked).removeClass("active");
   }
-  addLocalStorage("SelectedCoins", selected_coins);
-  closeModel();
+
+  for (let i = 0; i < localCheckBoxArray.length; i++) {
+    localSymbolArray.push(localCheckBoxArray[i].id);
+  }
+
+  //on toogle model switch
+  let allSwitchs = $(".root").find(".switch");
+  for (let i = 0; i < allSwitchs.length; i++) {
+    if (localSymbolArray.indexOf(allSwitchs[i].id) == -1) {
+      let input = allSwitchs[i].children[0];
+      $(input).prop('checked', false);
+    }
+  }
+  checkBoxArray = [...localCheckBoxArray];
+  symbolArray = [...localSymbolArray];
+  console.log("symbolArray", symbolArray);
+
+  $(".modal").hide();
+  $(".modal-body").empty();
 }
 
 //API GET COINS
@@ -429,7 +342,7 @@ function homePage() {
 
     allCoins = getDataAsync()
       .then((data) => {
-        console.log(data);
+        //console.log(data);
         allCoins = data;
         console.log("allCoins " + allCoins);
         return allCoins;
@@ -474,27 +387,4 @@ function navfunc(panel) {
   }
 }
 
-//Main
-//$(document).ready(function() {
-(function () {
-  $(".modal").hide();
-  localStorage.clear();
-  console.log("Local Storege Has Been Cleared...");
-  $(document).ajaxStart(function () {
-    $(".cover").show();
-    console.log("cover active");
-  });
-  $(document).ajaxComplete(function () {
-    $(".cover").hide();
-    console.log("cover not active");
-  });
-  $("[id*='panel']").addClass("active");
-  homePage();
-  navBtn.on("click", function () {
-    console.log(navBtn);
-    navBtn.toggleClass("active");
-    var panelId = $(this).data("panelid");
-    console.log("panelId: " + panelId);
-    navfunc(panelId);
-  });
-})();
+

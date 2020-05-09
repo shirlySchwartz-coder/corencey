@@ -23,10 +23,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        Selected Coins - Please select which coin to remove ! 
+                        Selected Coins !
                     </h5>
-                    <button type="button" id="md-close" class="close" data-dismiss="modal" aria-label="close" onClick="closeModel()" >
-                        <span aria-hidden="true">&times;</span>
+                    <button type="button" id="md-close" class="close" data-dismiss="modal" aria-label="close">
+                        &times;
                     </button>
                 </div>
                 <div class="modal-body">
@@ -37,7 +37,13 @@
                     <p id="coin4"></p>
                 </div>
                 <div class="modal-footer" id="modal-wrepper">
-        
+                    <button type="button" class="btn btn-secondary close" data-dismiss="modal" id="closemodal"
+                        onClick="cancelModal">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="save_btn" onclick="saveNewArr()">
+                        Save changes
+                    </button>
                 </div>
             </div>
         </div>
@@ -161,16 +167,16 @@
 
                 <div class="home-page page active" id="panel1">
                     <div>
-                        
+
                         <div class="cont" id="cont1">
 
                         </div>
                         <div style="display: none;" id="loading"></div>
 
-                        <div class="container section">
+                        <div class="container section ">
                             <h1>Home</h1>
 
-                            <div class="row row-cols-md-2" id="card-wrapper">
+                            <div class="row row-cols-md-2 root" id="card-wrapper">
 
                             </div>
                         </div>
