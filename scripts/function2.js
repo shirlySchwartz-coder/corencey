@@ -468,7 +468,7 @@ async function livePage() {
         },
       });
 
-      //dataFromApiCall = await getDataFromUrl(symbolStr,timeLabels,chart);
+      
       var d = new Date();
       var formatted_time = time_format(d);
       timeLabels.push(formatted_time);
@@ -488,9 +488,9 @@ async function livePage() {
 }
 
 function getCurrentPrice(str, timeLabels, chart) {
-  //let coinSymbolsString = symbolArray.join();
+  
   let fullURL = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${str}&tsyms=USD`;
-  //min-api.cryptocompare.com/data/pricemulti?fsyms=ETH,BTC&tsyms=USD
+  
   $.ajax({
     url: fullURL,
     success: function (res) {
