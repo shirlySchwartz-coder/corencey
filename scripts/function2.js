@@ -1,9 +1,21 @@
 //Varibels
+const $body = $('body');
 const navBtn = $(".panel-button");
+const chartBox = $("#chartContainer");
 var div_home = $("#cont1");
 var div_card = $("#card-wrapper");
 var checkBoxArray = [];
 var symbolArray = [];
+var timeLabels = [];
+var updateInterval = 2000;
+var livePageIsOn = false;
+var homePageIsOnFirstTime = true;
+var myVar = "";
+var dataFromApiCall = [];
+var selectedData;
+var idVar;
+var datasets = [];
+var dataObjects;
 
 var lsArray = false;
 var delete_coins = [];
@@ -16,39 +28,45 @@ class Coin {
     this.name = name;
     this.index = index;
   }
-  getCoinId() {
-    return this.id;
-  }
+  
 }
 
 const coinsArr = [];
 
-
-
 //Main
 //$(document).ready(function() {
-  (function () {
-    $(".modal").hide();
-    localStorage.clear();
-    console.log("Local Storege Has Been Cleared...");
-    $(document).ajaxStart(function () {
-      $(".cover").show();
-      console.log("cover active");
-    });
-    $(document).ajaxComplete(function () {
-      $(".cover").hide();
-      console.log("cover not active");
-    });
-    $("[id*='panel']").addClass("active");
-    homePage();
-    navBtn.on("click", function () {
-      console.log(navBtn);
-      navBtn.toggleClass("active");
-      var panelId = $(this).data("panelid");
-      console.log("panelId: " + panelId);
-      navfunc(panelId);
-    });
-  })();
+(function () {
+   //
+   $(document).on({
+    ajaxStart: ajaxAdd,
+    ajaxStop: ajaxRemove
+});
+   // 
+  $(".modal").hide();
+  localStorage.clear();
+  console.log("Local Storege Has Been Cleared...");
+
+  $("[id*='panel']").addClass("active");
+  homePage();
+  navBtn.on("click", function () {
+    console.log(navBtn);
+
+    navBtn.toggleClass("active");
+    var panelId = $(this).data("panelid");
+    console.log("panelId: " + panelId);
+    //killInterval();
+    navfunc(panelId);
+  });
+})();
+//starts ajax loading 
+function ajaxAdd() {
+    $(".cover").show();
+}
+
+//stops ajax loading
+function ajaxRemove() {
+	$(".cover").hide();
+}
 
 //Print Cards
 function printCards(cardData) {
@@ -70,8 +88,8 @@ function createCard(coin, index) {
   var first_row = $(`<div class ="row"></div>`);
   var symbol = $(`<div class ="card-title col" ><h4>${coin.symbol}<h4></div>`);
   let label_switch = $(`<label class="switch mt-1" id=${coin.symbol}>
-                          <input class="si" type="checkbox" name="sliderCheck" id=${coin.id} switch-index=${index}  >[0]
-                          <span class ="slider round"></span>[0]
+                          <input class="si" type="checkbox" name="sliderCheck" id=${coin.id} switch-index=${index}  >
+                          <span class ="slider round"></span>
                         </label>`);
   var name = $(`<div class ="card-text">Name : ${coin.name}</div>`);
   var infobtn = $(
@@ -107,31 +125,29 @@ function createCard(coin, index) {
 }
 //Toogle Select Coins
 
-function toggleCoin( currentCoin,event) {
-  
+function toggleCoin(currentCoin, event) {
   let input_checked = event.target;
-  let input=input_checked.closest('label');
-  console.log('input', input);
-  
+  let input = input_checked.closest("label");
+  console.log("input", input);
+
   if (symbolArray.includes(currentCoin.symbol)) {
     console.log("in the array");
     checkBoxArray.splice(checkBoxArray.indexOf(input), 1);
-    symbolArray.splice(symbolArray.indexOf(currentCoin.symbol), 1); 
+    symbolArray.splice(symbolArray.indexOf(currentCoin.symbol), 1);
   } else {
     console.log("not in the array");
     if (checkBoxArray.length > 4) {
       alert("more the five");
-      
+
       createModal(checkBoxArray, input_checked);
     } else {
-      let checked=input.cloneNode(true);
+      let checked = input.cloneNode(true);
       checkBoxArray.push(checked);
-      console.log('checkBoxArray',checkBoxArray);
+      console.log("checkBoxArray", checkBoxArray);
       symbolArray.push(currentCoin.symbol);
-      console.log('symbolArray',symbolArray);
+      console.log("symbolArray", symbolArray);
     }
   }
-  
 }
 
 //Get serched  Coin
@@ -246,7 +262,6 @@ function getCoinsFromLS() {
 function createModal(arr, checkbox) {
   $(".modal-body").empty();
   $(checkbox).prop("checked", !$(checkbox).prop("checked"));
- 
 
   checkBoxArray.forEach((element) => {
     console.log(element);
@@ -256,15 +271,15 @@ function createModal(arr, checkbox) {
 
     $(".modal-body")[0].append(div);
   });
- 
+
   $("#myModal").show();
- 
 }
 
 //Modal
 //cancel was clicked on modal
 function cancelModal() {
   $(".modal-body").empty();
+  $(".modal").hide();
 }
 function closeModel() {
   $(".modal").hide();
@@ -275,11 +290,11 @@ function saveNewArr() {
   let localSymbolArray = [];
   let origArray = [];
 
-  origArray = $('.modal-body').find('.switch');
+  origArray = $(".modal-body").find(".switch");
 
   for (let i = 0; i < origArray.length; i++) {
-    let checkbox = $(origArray[i]).find('input')[0];
-    let bool = $(checkbox).is(':checked');
+    let checkbox = $(origArray[i]).find("input")[0];
+    let bool = $(checkbox).is(":checked");
     if (bool) {
       localCheckBoxArray.push(origArray[i]);
       console.log("localCheckBoxArray", localCheckBoxArray);
@@ -295,7 +310,7 @@ function saveNewArr() {
   for (let i = 0; i < allSwitchs.length; i++) {
     if (localSymbolArray.indexOf(allSwitchs[i].id) == -1) {
       let input = allSwitchs[i].children[0];
-      $(input).prop('checked', false);
+      $(input).prop("checked", false);
     }
   }
   checkBoxArray = [...localCheckBoxArray];
@@ -333,7 +348,7 @@ function homePage() {
 
   div_home.append(back_img);
 
-  if (lsArray) {
+  if (!homePageIsOnFirstTime) {
     alert("Take from LS!");
     allCoins = getCoinsFromLS();
     printCards(allCoins);
@@ -350,8 +365,8 @@ function homePage() {
       .then((allCoins) => {
         if (allCoins.length > 0) {
           printCards(allCoins);
-
           saveCoinsToLS(coinsArr);
+          homePageIsOnFirstTime = false;
           $(".cover").hide();
         }
       });
@@ -364,6 +379,7 @@ function navfunc(panel) {
   $("[id*='panel']").removeClass("active");
   $("#" + panel).show();
   $("#" + panel).addClass("active");
+
   if (panel != "panel1") {
     $(div_home).empty();
     $(div_card).empty();
@@ -372,19 +388,201 @@ function navfunc(panel) {
   switch (panel) {
     case "panel3":
       // code block
+      if (idVar) clearInterval(idVar);
       alert("About!");
+      createAbout();
 
       break;
     case "panel2":
-      // code block
-      alert("Live!");
-      //livePage();
+      livePageIsOn = !livePageIsOn;
+      if (idVar) clearInterval(idVar);
+      $(document).off({
+        ajaxStart: ajaxAdd,
+        ajaxStop: ajaxRemove
+      });
+      livePage();
+
       break;
     default:
       // code block
+      if (idVar) clearInterval(idVar);
       alert("Home!");
       homePage();
   }
 }
 
+//-----------------------------------------------------LIVE PAGE-----------------------------------------------
+function stopInterval() {
+  console.log(idVar);
+  clearInterval(idVar);
+}
 
+function getStringForURLSerch() {
+  let str = "";
+  var symbolUperCase = [];
+  let selectedCoinsSymbol = [...symbolArray];
+
+  console.log(selectedCoinsSymbol);
+  selectedCoinsSymbol.forEach((element) => {
+    symbolUperCase.push(element.toUpperCase());
+  });
+
+  for (let i = 0; i < symbolUperCase.length; i++) {
+    str += symbolUperCase[i];
+    if (i + 1 < symbolUperCase.length) {
+      str += ",";
+    }
+  }
+  console.log(str);
+  return str;
+}
+
+async function livePage() {
+  //alert("Live function! ");
+  var synbolStr = "";
+  if (livePageIsOn) {
+    livePageIsOn = !livePageIsOn;
+    //GET STRING FOR URL
+    console.log("Get Chart Info");
+    //If no selected coins give warrning, go to home page
+    if (symbolArray.length == 0) {
+      alert("You need to select several coins first!");
+      stopInterval();
+      homePage();
+    } else {
+      symbolStr = getStringForURLSerch();
+    //console.log('dataFromApi', dataFromApi);
+      ////
+      console.log("start chart");
+
+      $(chartBox).append('<canvas id="myChart"></canvas>');
+      //
+      
+      //new chart creation
+      var ctx = document.getElementById("myChart").getContext("2d");
+      var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: "line",
+        // The data for our dataset
+        data: {
+          labels: timeLabels,
+          datasets: datasets,
+        },
+
+
+        // Configuration options go here
+        options: {
+          animation: { duration: 1000 * 1, easing: "linear" },
+        },
+      });
+
+      //dataFromApiCall = await getDataFromUrl(symbolStr,timeLabels,chart);
+      var d = new Date();
+      var formatted_time = time_format(d);
+      timeLabels.push(formatted_time);
+      getCurrentPrice(symbolStr,timeLabels, chart);
+
+      //will run on setinterval()
+		idVar = setInterval(() => {
+			var d = new Date();
+			var formatted_time = time_format(d);
+			if (timeLabels.length>10)
+			timeLabels.shift();
+			timeLabels.push(formatted_time)
+			getCurrentPrice(symbolStr,timeLabels, chart)
+		}, 1000)
+      //
+    }
+  }
+}
+
+
+function getCurrentPrice(str,timeLabels, chart) {
+	//let coinSymbolsString = symbolArray.join();
+	let fullURL = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${str}&tsyms=USD`;
+	//min-api.cryptocompare.com/data/pricemulti?fsyms=ETH,BTC&tsyms=USD
+	$.ajax({
+		url: fullURL,
+		success: function (res) {
+			if (res) drawChart(res, timeLabels, chart);
+		},
+		error: function () {
+			alert('error!');
+		},
+	});
+}
+
+function drawChart(res, timeLabels, chart) {
+	try {
+		let datasets = buildDataSets(res)
+		chart.data.labels = timeLabels;
+		chart.data.datasets = datasets;
+		chart.update(1000);
+	}
+	catch (exception) {
+
+	}
+}
+
+function buildDataSets(res) {
+
+	if (datasets.length == 0) {
+
+
+		Object.keys(res).forEach(element => {
+			let coinName = element;
+			let coinPrice = res[element]["USD"];
+
+			let dataObject = {
+				label: `${coinName}`,
+				backgroundColor: getRandomColor(),
+				borderColor: getRandomColor(),
+				fill: false,
+				data: [coinPrice],
+			}
+			datasets.push(dataObject);
+		});
+	}
+	else {
+		for (let i = 0; i < datasets.length; i++) {
+			let coinPrice = res[Object.keys(res)[i]]["USD"];
+			if (datasets[i].data.length>10)
+			datasets[i].data.shift();
+			datasets[i].data = [...datasets[i].data, coinPrice]
+		}
+		
+	}
+	return datasets;
+}
+
+
+//time functions
+function time_format(d) {
+	hours = format_two_digits(d.getHours());
+	minutes = format_two_digits(d.getMinutes());
+	seconds = format_two_digits(d.getSeconds());
+	return hours + ':' + minutes + ':' + seconds;
+}
+
+function format_two_digits(n) {
+	return n < 10 ? '0' + n : n;
+}
+
+//get random color
+function getRandomColor() {
+	var letters = '0123456789ABCDEF';
+	var color = '#';
+	for (var i = 0; i < 6; i++) {
+		color += letters[Math.floor(Math.random() * 16)];
+	}
+	return color;
+}
+
+///////////////////////About Page
+function createAbout(){
+  console.log('In About Page');
+  var aboutcont=document.getElementById('aboutWrepper');
+  let picDiv=$('<img src="./media/Shirly.jpg" class="about_img mt-5 col-4"></img>');
+  let aboutDiv=$('<div class=mt-5 col-10>My name is Shirly Schwartz <br> I am A Web Devloper</div>');
+  $(aboutcont).append(picDiv).append(aboutDiv);
+}

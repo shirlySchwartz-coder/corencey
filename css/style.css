@@ -186,6 +186,21 @@ margin-left: 0 ;
   margin-left: 150px;
 }
 
+/**/
+#chartContainer {
+  height: 300px;
+  width: 80%;
+  margin: 50px,auto;
+  max-block-size: -webkit-fill-available;
+  align-self: center;
+  padding-left: 50px;
+}
+#myChart{
+ 
+  width: 80vw;
+  height: 100vh;
+ padding: 20px;
+}
 /*slider in modal */
 
 /*

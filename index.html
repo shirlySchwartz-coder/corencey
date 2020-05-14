@@ -25,7 +25,8 @@
                     <h5 class="modal-title">
                         Selected Coins !
                     </h5>
-                    <button type="button" id="md-close" class="close" data-dismiss="modal" aria-label="close">
+                    <button type="button" id="md-close" class="close" data-dismiss="modal" aria-label="close"
+                        onclick="closeModel()">
                         &times;
                     </button>
                 </div>
@@ -37,8 +38,7 @@
                     <p id="coin4"></p>
                 </div>
                 <div class="modal-footer" id="modal-wrepper">
-                    <button type="button" class="btn btn-secondary close" data-dismiss="modal" id="closemodal"
-                        onClick="cancelModal">
+                    <button type="button" class="btn btn-secondary close" data-dismiss="modal" onclick="cancelModal()">
                         Cancel
                     </button>
                     <button type="button" class="btn btn-primary" id="save_btn" onclick="saveNewArr()">
@@ -187,14 +187,20 @@
 
                         <div class="container section">
                             <h1>Live Reports</h1>
+                            <button id="stop" onclick="stopInterval()">Stop Interval</button>
+                        </div>
+                        <div id="chartContainer">
+
                         </div>
                     </div>
                 </div>
                 <div class="page hide" id="panel3">
                     <div>
-
                         <div class="container section">
                             <h1>About</h1>
+                            <div id="aboutWrepper">
+                                
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -216,13 +222,17 @@
 
     <script src="https://code.jquery.com/jquery-3.4.1.js"
         integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.5.0.js"></script>   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"></script>
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
     <script src="./scripts/jquery-3.4.1.min.js"></script>
-    <script src="./scripts/functions.js"></script>
+    <script src="./scripts/function2.js"></script>
 </body>
 
 </html>
