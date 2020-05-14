@@ -1,5 +1,5 @@
 //Varibels
-const $body = $('body');
+const $body = $("body");
 const navBtn = $(".panel-button");
 const chartBox = $("#chartContainer");
 var div_home = $("#cont1");
@@ -28,20 +28,17 @@ class Coin {
     this.name = name;
     this.index = index;
   }
-  
 }
 
 const coinsArr = [];
 
-//Main
-//$(document).ready(function() {
 (function () {
-   //
-   $(document).on({
+  //
+  $(document).on({
     ajaxStart: ajaxAdd,
-    ajaxStop: ajaxRemove
-});
-   // 
+    ajaxStop: ajaxRemove,
+  });
+  //
   $(".modal").hide();
   localStorage.clear();
   console.log("Local Storege Has Been Cleared...");
@@ -58,19 +55,19 @@ const coinsArr = [];
     navfunc(panelId);
   });
 })();
-//starts ajax loading 
+//starts ajax loading
 function ajaxAdd() {
-    $(".cover").show();
+  $(".cover").show();
 }
 
 //stops ajax loading
 function ajaxRemove() {
-	$(".cover").hide();
+  $(".cover").hide();
 }
 
 //Print Cards
 function printCards(cardData) {
-  console.log("printCards Function");
+  //console.log("printCards Function");
   for (let i = 0; i < 100; i++) {
     coinsArr.push(
       new Coin(cardData[i].id, cardData[i].symbol, cardData[i].name, i)
@@ -104,8 +101,6 @@ function createCard(coin, index) {
   // toggle
 
   $("#" + coin.id).click(function (e) {
-    // alert(`you clicked: ${coin.id},${e.currentTarget}`);
-    console.log(coin, e);
     toggleCoin(coin, e);
   });
 
@@ -114,10 +109,10 @@ function createCard(coin, index) {
     var content = this.nextElementSibling;
     if (content.style.display === "block") {
       content.style.display = "none";
-      console.log("hide");
+      //console.log("hide");
     } else {
       content.style.display = "block";
-      console.log("show");
+      //console.log("show");
 
       getInfoOnCoin(infoWrapper, coin.id);
     }
@@ -128,14 +123,14 @@ function createCard(coin, index) {
 function toggleCoin(currentCoin, event) {
   let input_checked = event.target;
   let input = input_checked.closest("label");
-  console.log("input", input);
+  //console.log("input", input);
 
   if (symbolArray.includes(currentCoin.symbol)) {
-    console.log("in the array");
+    //console.log("in the array");
     checkBoxArray.splice(checkBoxArray.indexOf(input), 1);
     symbolArray.splice(symbolArray.indexOf(currentCoin.symbol), 1);
   } else {
-    console.log("not in the array");
+    //console.log("not in the array");
     if (checkBoxArray.length > 4) {
       alert("more the five");
 
@@ -143,9 +138,9 @@ function toggleCoin(currentCoin, event) {
     } else {
       let checked = input.cloneNode(true);
       checkBoxArray.push(checked);
-      console.log("checkBoxArray", checkBoxArray);
+      //console.log("checkBoxArray", checkBoxArray);
       symbolArray.push(currentCoin.symbol);
-      console.log("symbolArray", symbolArray);
+      //console.log("symbolArray", symbolArray);
     }
   }
 }
@@ -170,7 +165,7 @@ function getSearchCoin() {
     url: `https://api.coingecko.com/api/v3/coins/${searchId}`,
     success: function (searchcoin) {
       $("#card-wrapper").html("");
-      console.log(searchcoin);
+      //console.log(searchcoin);
       createCard(searchcoin, i);
     },
   });
@@ -199,7 +194,7 @@ function makeAPIInfoOnCoinReq(wrepper, coinId, now) {
     type: "GET",
     url: `https://api.coingecko.com/api/v3/coins/${coinId}`,
     success: function (infoCoin) {
-      console.log(infoCoin);
+      //console.log(infoCoin);
       let localStorageObj = {
         res: infoCoin,
         time: now.toString(),
@@ -297,7 +292,7 @@ function saveNewArr() {
     let bool = $(checkbox).is(":checked");
     if (bool) {
       localCheckBoxArray.push(origArray[i]);
-      console.log("localCheckBoxArray", localCheckBoxArray);
+      //console.log("localCheckBoxArray", localCheckBoxArray);
     }
   }
 
@@ -315,7 +310,7 @@ function saveNewArr() {
   }
   checkBoxArray = [...localCheckBoxArray];
   symbolArray = [...localSymbolArray];
-  console.log("symbolArray", symbolArray);
+  //console.log("symbolArray", symbolArray);
 
   $(".modal").hide();
   $(".modal-body").empty();
@@ -323,7 +318,7 @@ function saveNewArr() {
 
 //API GET COINS
 async function getDataAsync() {
-  console.log("getDataAsync Function");
+  //console.log("getDataAsync Function");
   let response = await fetch(`https://api.coingecko.com/api/v3/coins/list`);
   let data = await response.json();
   return data;
@@ -349,7 +344,7 @@ function homePage() {
   div_home.append(back_img);
 
   if (!homePageIsOnFirstTime) {
-    alert("Take from LS!");
+    //alert("Take from LS!");
     allCoins = getCoinsFromLS();
     printCards(allCoins);
   } else {
@@ -359,7 +354,7 @@ function homePage() {
       .then((data) => {
         //console.log(data);
         allCoins = data;
-        console.log("allCoins " + allCoins);
+        //console.log("allCoins " + allCoins);
         return allCoins;
       })
       .then((allCoins) => {
@@ -389,7 +384,7 @@ function navfunc(panel) {
     case "panel3":
       // code block
       if (idVar) clearInterval(idVar);
-      alert("About!");
+      //alert("About!");
       createAbout();
 
       break;
@@ -398,7 +393,7 @@ function navfunc(panel) {
       if (idVar) clearInterval(idVar);
       $(document).off({
         ajaxStart: ajaxAdd,
-        ajaxStop: ajaxRemove
+        ajaxStop: ajaxRemove,
       });
       livePage();
 
@@ -406,7 +401,7 @@ function navfunc(panel) {
     default:
       // code block
       if (idVar) clearInterval(idVar);
-      alert("Home!");
+      //alert("Home!");
       homePage();
   }
 }
@@ -433,7 +428,7 @@ function getStringForURLSerch() {
       str += ",";
     }
   }
-  console.log(str);
+  //console.log(str);
   return str;
 }
 
@@ -451,12 +446,10 @@ async function livePage() {
       homePage();
     } else {
       symbolStr = getStringForURLSerch();
-    //console.log('dataFromApi', dataFromApi);
-      ////
-      console.log("start chart");
+      //console.log('dataFromApi', dataFromApi);
+      //console.log("start chart");
 
       $(chartBox).append('<canvas id="myChart"></canvas>');
-      //
       
       //new chart creation
       var ctx = document.getElementById("myChart").getContext("2d");
@@ -469,7 +462,6 @@ async function livePage() {
           datasets: datasets,
         },
 
-
         // Configuration options go here
         options: {
           animation: { duration: 1000 * 1, easing: "linear" },
@@ -480,109 +472,100 @@ async function livePage() {
       var d = new Date();
       var formatted_time = time_format(d);
       timeLabels.push(formatted_time);
-      getCurrentPrice(symbolStr,timeLabels, chart);
+      getCurrentPrice(symbolStr, timeLabels, chart);
 
       //will run on setinterval()
-		idVar = setInterval(() => {
-			var d = new Date();
-			var formatted_time = time_format(d);
-			if (timeLabels.length>10)
-			timeLabels.shift();
-			timeLabels.push(formatted_time)
-			getCurrentPrice(symbolStr,timeLabels, chart)
-		}, 1000)
+      idVar = setInterval(() => {
+        var d = new Date();
+        var formatted_time = time_format(d);
+        if (timeLabels.length > 10) timeLabels.shift();
+        timeLabels.push(formatted_time);
+        getCurrentPrice(symbolStr, timeLabels, chart);
+      }, 1000);
       //
     }
   }
 }
 
-
-function getCurrentPrice(str,timeLabels, chart) {
-	//let coinSymbolsString = symbolArray.join();
-	let fullURL = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${str}&tsyms=USD`;
-	//min-api.cryptocompare.com/data/pricemulti?fsyms=ETH,BTC&tsyms=USD
-	$.ajax({
-		url: fullURL,
-		success: function (res) {
-			if (res) drawChart(res, timeLabels, chart);
-		},
-		error: function () {
-			alert('error!');
-		},
-	});
+function getCurrentPrice(str, timeLabels, chart) {
+  //let coinSymbolsString = symbolArray.join();
+  let fullURL = `https://min-api.cryptocompare.com/data/pricemulti?fsyms=${str}&tsyms=USD`;
+  //min-api.cryptocompare.com/data/pricemulti?fsyms=ETH,BTC&tsyms=USD
+  $.ajax({
+    url: fullURL,
+    success: function (res) {
+      if (res) drawChart(res, timeLabels, chart);
+    },
+    error: function () {
+      alert("error!");
+    },
+  });
 }
 
 function drawChart(res, timeLabels, chart) {
-	try {
-		let datasets = buildDataSets(res)
-		chart.data.labels = timeLabels;
-		chart.data.datasets = datasets;
-		chart.update(1000);
-	}
-	catch (exception) {
-
-	}
+  try {
+    let datasets = buildDataSets(res);
+    chart.data.labels = timeLabels;
+    chart.data.datasets = datasets;
+    chart.update(1000);
+  } catch (exception) {}
 }
 
 function buildDataSets(res) {
+  if (datasets.length == 0) {
+    Object.keys(res).forEach((element) => {
+      let coinName = element;
+      let coinPrice = res[element]["USD"];
 
-	if (datasets.length == 0) {
-
-
-		Object.keys(res).forEach(element => {
-			let coinName = element;
-			let coinPrice = res[element]["USD"];
-
-			let dataObject = {
-				label: `${coinName}`,
-				backgroundColor: getRandomColor(),
-				borderColor: getRandomColor(),
-				fill: false,
-				data: [coinPrice],
-			}
-			datasets.push(dataObject);
-		});
-	}
-	else {
-		for (let i = 0; i < datasets.length; i++) {
-			let coinPrice = res[Object.keys(res)[i]]["USD"];
-			if (datasets[i].data.length>10)
-			datasets[i].data.shift();
-			datasets[i].data = [...datasets[i].data, coinPrice]
-		}
-		
-	}
-	return datasets;
+      let dataObject = {
+        label: `${coinName}`,
+        backgroundColor: getRandomColor(),
+        borderColor: getRandomColor(),
+        fill: false,
+        data: [coinPrice],
+      };
+      datasets.push(dataObject);
+    });
+  } else {
+    for (let i = 0; i < datasets.length; i++) {
+      let coinPrice = res[Object.keys(res)[i]]["USD"];
+      if (datasets[i].data.length > 10) datasets[i].data.shift();
+      datasets[i].data = [...datasets[i].data, coinPrice];
+    }
+  }
+  return datasets;
 }
-
 
 //time functions
 function time_format(d) {
-	hours = format_two_digits(d.getHours());
-	minutes = format_two_digits(d.getMinutes());
-	seconds = format_two_digits(d.getSeconds());
-	return hours + ':' + minutes + ':' + seconds;
+  hours = format_two_digits(d.getHours());
+  minutes = format_two_digits(d.getMinutes());
+  seconds = format_two_digits(d.getSeconds());
+  return hours + ":" + minutes + ":" + seconds;
 }
 
 function format_two_digits(n) {
-	return n < 10 ? '0' + n : n;
+  return n < 10 ? "0" + n : n;
 }
 
 //get random color
 function getRandomColor() {
-	var letters = '0123456789ABCDEF';
-	var color = '#';
-	for (var i = 0; i < 6; i++) {
-		color += letters[Math.floor(Math.random() * 16)];
-	}
-	return color;
+  var letters = "0123456789ABCDEF";
+  var color = "#";
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
 }
 
 ///////////////////////About Page
-function createAbout(){
-  console.log('In About Page');
-  var aboutcont=document.getElementById('aboutWrepper');
-  let picDiv=$('<img src="./media/Shirly.jpg" class="about_img mt-5 col-4"></img>');
-  let aboutDiv=$('<div class=mt-5 col-10>My name is Shirly Schwartz <br> I am A Web Devloper</div>');
+function createAbout() {
+  console.log("In About Page");
+  var aboutcont = document.getElementById("aboutWrepper");
+  let picDiv = $(
+    '<img src="./media/Shirly.jpg" class="about_img mt-5 col-4"></img>'
+  );
+  let aboutDiv = $(`<div class=mt-5 col-10><h3>My name is Shirly Schwartz <br>I'm a mother of one.<br>I am A Web Devloper.<br>I am a Software Engineer and Computer Technician.<br>I live in Harish.<br>I study Full Stack College John Brice Haifa.
+  </h3></div>`);
   $(aboutcont).append(picDiv).append(aboutDiv);
 }
